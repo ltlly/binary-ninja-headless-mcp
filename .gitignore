@@ -1,0 +1,28 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc.*
+*.py,cover
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Environment / secrets
+.env
+.env.*
+
+# Binary Ninja databases
+*.bndb
+
+# OS artifacts
+.DS_Store
+
+# IDE directories
+.idea/
+.vscode/
+*.swp
+
+# Compiled test fixtures
+tests/fixtures/hello
