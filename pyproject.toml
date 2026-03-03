@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binary-ninja-headless-mcp"
+version = "0.2.0"
+description = "Binary Ninja headless MCP server for AI agents."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Tim Blazytko" }]
+keywords = ["binary-ninja", "mcp", "reverse-engineering", "ai-agent"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Intended Audience :: Developers",
+  "Topic :: Security",
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = []
+
+[project.scripts]
+binary_ninja_headless_mcp = "binary_ninja_headless_mcp.cli:main"
+binary-ninja-headless-mcp = "binary_ninja_headless_mcp.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/mrphrazer/binary-ninja-headless-mcp"
+Repository = "https://github.com/mrphrazer/binary-ninja-headless-mcp"
+Issues = "https://github.com/mrphrazer/binary-ninja-headless-mcp/issues"
+
+[tool.setuptools]
+packages = ["binary_ninja_headless_mcp"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["binary_ninja_headless_mcp", "tests", "binary_ninja_headless_mcp.py"]
+extend-exclude = [
+  "binaryninja-api",
+  "obfuscation_detection",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RET", "ARG", "PL", "RUF"]
+ignore = [
+  "PLR0913",
+  "PLR2004",
+  "PLC0415",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
