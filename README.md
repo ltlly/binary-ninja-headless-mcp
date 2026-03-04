@@ -14,7 +14,7 @@ The goal is an interface where agents can inspect, refine, and extend an analysi
 
 ## Features
 
-- **180 tools** across 35 feature groups: analysis, disassembly, IL, patching, undo/redo, types, workflows, memory, search, xrefs, scripting, and more.
+- **181 tools** across 36 feature groups: analysis, disassembly, IL, patching, undo/redo, types, workflows, memory, search, xrefs, scripting, and more.
 - **Read-only by default** with safe mutation workflows (undo/redo, transactions).
 - **Scripting access** via `binja.eval` and `binja.call` for anything the tool catalog doesn't cover.
 - **Stdio and TCP transports.**
@@ -138,6 +138,7 @@ Tool call response behavior:
 
 - `structuredContent` is the canonical full payload.
 - `content[0].text` is a compact summary string (not full JSON duplication).
+- This split is intentional to keep context usage smaller while still exposing full machine-readable data.
 
 ## Quality And Testing
 
@@ -207,7 +208,7 @@ Useful flags:
 
 ## Feature Catalog
 
-The server currently exposes `180` tools across `35` feature groups.
+The server currently exposes `181` tools across `36` feature groups.
 
 ### analysis
 - `analysis.status`: Get analysis status.
@@ -327,6 +328,9 @@ The server currently exposes `180` tools across `35` feature groups.
 - `memory.remove`: Remove bytes from the view.
 - `memory.reader_read`: Read integer values via BinaryReader.
 - `memory.writer_write`: Write integer values via BinaryWriter.
+
+### mcp
+- `mcp.response_format`: Explain tool result fields (`structuredContent` full payload, `content[0].text` summary).
 
 ### metadata
 - `metadata.store`: Store metadata by key.

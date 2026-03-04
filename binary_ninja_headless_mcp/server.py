@@ -31,6 +31,7 @@ class SimpleMcpServer:
         self._backend = backend
         self._tool_handlers = {
             "health.ping": self._tool_ping,
+            "mcp.response_format": self._tool_mcp_response_format,
             "binja.info": self._tool_binja_info,
             "binja.call": self._tool_binja_call,
             "binja.eval": self._tool_binja_eval,
@@ -515,6 +516,11 @@ class SimpleMcpServer:
     def _tool_definitions(self) -> list[dict[str, Any]]:
         return [
             self._tool("health.ping", "Health check."),
+            self._tool(
+                "mcp.response_format",
+                "Explain MCP tool result fields (`structuredContent` full payload, "
+                "`content[0].text` summary).",
+            ),
             self._tool("binja.info", "Return Binary Ninja version/install info."),
             self._tool(
                 "binja.call",
@@ -2351,6 +2357,14 @@ class SimpleMcpServer:
 
     def _tool_ping(self, _: dict[str, Any]) -> dict[str, Any]:
         return self._backend.ping()
+
+    def _tool_mcp_response_format(self, _: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "canonical_field": "structuredContent",
+            "summary_field": "content[0].text",
+            "error_field": "isError",
+            "guidance": "Use structuredContent for complete machine-readable tool output.",
+        }
 
     def _tool_binja_info(self, _: dict[str, Any]) -> dict[str, Any]:
         return self._backend.core_info()
