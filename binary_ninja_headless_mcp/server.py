@@ -1176,7 +1176,7 @@ class SimpleMcpServer:
             ),
             self._tool(
                 "il.function",
-                "IL function listing.",
+                "IL function listing. Use format='text' for compact LLM-friendly pseudocode output (one line per instruction); use format='json' (default) for full structured IL with tokens/operands.",
                 {
                     "session_id": {"type": "string"},
                     "function_start": {
@@ -1186,6 +1186,7 @@ class SimpleMcpServer:
                     "ssa": {"type": "boolean"},
                     "offset": {"type": "integer", "minimum": 0},
                     "limit": {"type": "integer", "minimum": 1},
+                    "format": {"type": "string", "enum": ["json", "text"], "description": "Output format: 'text' returns compact pseudocode (recommended for LLM analysis), 'json' returns full IL structure with tokens/operands."},
                 },
                 ["session_id", "function_start"],
             ),
@@ -3050,6 +3051,10 @@ class SimpleMcpServer:
         if not isinstance(offset, int) or not isinstance(limit, int):
             raise BinjaBackendError("'offset' and 'limit' must be integers")
 
+        fmt = arguments.get("format", "json")
+        if not isinstance(fmt, str) or fmt not in ("json", "text"):
+            raise BinjaBackendError("'format' must be 'json' or 'text'")
+
         return self._backend.il_function(
             session_id,
             function_start,
@@ -3057,6 +3062,7 @@ class SimpleMcpServer:
             ssa=ssa,
             offset=offset,
             limit=limit,
+            format=fmt,
         )
 
     def _tool_il_instruction_by_addr(self, arguments: dict[str, Any]) -> dict[str, Any]:

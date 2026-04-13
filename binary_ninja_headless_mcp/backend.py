@@ -1206,6 +1206,7 @@ class BinjaBackend:
         ssa: bool = False,
         offset: int = 0,
         limit: int = 200,
+        format: str = "json",
     ) -> dict[str, Any]:
         self._validate_offset_limit(offset, limit)
 
@@ -1213,9 +1214,28 @@ class BinjaBackend:
         il = self._get_il_function(function, level, ssa)
         instructions = list(il.instructions)
 
+        sliced = instructions[offset : offset + limit]
+
+        if format == "text":
+            # Compact text output: one line per instruction, LLM-friendly
+            lines = [
+                f"{self._hex_or_none(self._safe_attr(instr, 'address'))}: {instr}"
+                for instr in sliced
+            ]
+            return {
+                "session_id": session_id,
+                "function_start": self._hex_or_none(self._safe_attr(function, "start")),
+                "level": level,
+                "ssa": ssa,
+                "offset": offset,
+                "limit": limit,
+                "total": len(instructions),
+                "text": "\n".join(lines),
+            }
+
         items = [
             self._il_instruction_to_record(instruction)
-            for instruction in instructions[offset : offset + limit]
+            for instruction in sliced
         ]
 
         return {
