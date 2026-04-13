@@ -1216,6 +1216,48 @@ class BinjaBackend:
 
         sliced = instructions[offset : offset + limit]
 
+        if format == "pseudoc":
+            # Pseudo C output: proper C-like decompilation with types, indentation, braces
+            # This is the equivalent of Ghidra's decompile_function output
+            try:
+                pseudo_c = self._safe_attr(function, "pseudo_c_if_available")
+                if pseudo_c is not None:
+                    hlil_root = self._safe_attr(self._safe_attr(function, "hlil"), "root")
+                    if hlil_root is not None:
+                        c_lines = pseudo_c.get_linear_lines(hlil_root)
+                        c_text = "\n".join(str(line) for line in c_lines)
+                    else:
+                        c_text = str(pseudo_c)
+                else:
+                    # Fallback to HLIL root lines
+                    hlil = self._safe_attr(function, "hlil")
+                    root = self._safe_attr(hlil, "root") if hlil else None
+                    if root is not None:
+                        c_text = "\n".join(str(line) for line in root.lines)
+                    else:
+                        c_text = "(pseudo C not available, try format='text')"
+            except Exception as exc:
+                c_text = f"(pseudo C failed: {exc}, try format='text')"
+
+            # Build function prototype
+            try:
+                func_type = self._safe_attr(function, "type")
+                if func_type is not None:
+                    before = "".join(str(t) for t in func_type.get_tokens_before_name())
+                    after = "".join(str(t) for t in func_type.get_tokens_after_name())
+                    proto = f"{before}{self._safe_attr(function, 'name') or '?'}{after}"
+                else:
+                    proto = self._safe_attr(function, "name") or "?"
+            except Exception:
+                proto = self._safe_attr(function, "name") or "?"
+
+            return {
+                "session_id": session_id,
+                "function_start": self._hex_or_none(self._safe_attr(function, "start")),
+                "prototype": proto,
+                "text": c_text,
+            }
+
         if format == "text":
             # Compact text output: one line per instruction, LLM-friendly
             lines = [

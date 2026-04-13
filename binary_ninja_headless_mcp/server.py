@@ -1186,7 +1186,7 @@ class SimpleMcpServer:
                     "ssa": {"type": "boolean"},
                     "offset": {"type": "integer", "minimum": 0},
                     "limit": {"type": "integer", "minimum": 1},
-                    "format": {"type": "string", "enum": ["json", "text"], "description": "Output format: 'text' returns compact pseudocode (recommended for LLM analysis), 'json' returns full IL structure with tokens/operands."},
+                    "format": {"type": "string", "enum": ["json", "text", "pseudoc"], "description": "Output format: 'pseudoc' returns C-like decompilation with types and indentation (best for LLM, equivalent to Ghidra decompile_function); 'text' returns compact IL one-line-per-instruction; 'json' returns full IL structure with tokens/operands."},
                 },
                 ["session_id", "function_start"],
             ),
@@ -3052,8 +3052,8 @@ class SimpleMcpServer:
             raise BinjaBackendError("'offset' and 'limit' must be integers")
 
         fmt = arguments.get("format", "json")
-        if not isinstance(fmt, str) or fmt not in ("json", "text"):
-            raise BinjaBackendError("'format' must be 'json' or 'text'")
+        if not isinstance(fmt, str) or fmt not in ("json", "text", "pseudoc"):
+            raise BinjaBackendError("'format' must be 'json', 'text', or 'pseudoc'")
 
         return self._backend.il_function(
             session_id,
