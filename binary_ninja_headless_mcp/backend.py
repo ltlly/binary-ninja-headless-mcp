@@ -1468,6 +1468,50 @@ class BinjaBackend:
             "items": items,
         }
 
+    def function_force_analysis(
+        self,
+        session_id: str,
+        function_start: int | str,
+        *,
+        wait: bool = True,
+    ) -> dict[str, Any]:
+        view = self._get_view(session_id)
+        function = self._get_function_by_start(session_id, function_start)
+
+        was_skipped = bool(self._safe_attr(function, "analysis_skipped"))
+        skip_reason_before = str(self._safe_attr(function, "analysis_skip_reason"))
+
+        try:
+            override = self._bn.FunctionAnalysisSkipOverride.NeverSkipFunctionAnalysis
+            function.analysis_skip_override = override
+        except Exception as exc:
+            raise BinjaBackendError(
+                f"failed to set analysis_skip_override: {exc}"
+            ) from exc
+
+        try:
+            function.reanalyze()
+        except Exception as exc:
+            raise BinjaBackendError(f"reanalyze failed: {exc}") from exc
+
+        if wait:
+            try:
+                view.update_analysis_and_wait()
+            except Exception as exc:
+                raise BinjaBackendError(
+                    f"analysis update failed: {exc}"
+                ) from exc
+
+        return {
+            "session_id": session_id,
+            "function_start": self._hex_or_none(self._safe_attr(function, "start")),
+            "was_skipped": was_skipped,
+            "skip_reason_before": skip_reason_before,
+            "analysis_skipped": bool(self._safe_attr(function, "analysis_skipped")),
+            "skip_reason": str(self._safe_attr(function, "analysis_skip_reason")),
+            "waited": wait,
+        }
+
     def function_variable_refs(
         self,
         session_id: str,

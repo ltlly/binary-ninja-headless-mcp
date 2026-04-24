@@ -78,6 +78,7 @@ class SimpleMcpServer:
             "function.callers": self._tool_function_callers,
             "function.callees": self._tool_function_callees,
             "function.variables": self._tool_function_variables,
+            "function.force_analysis": self._tool_function_force_analysis,
             "function.var_refs": self._tool_function_var_refs,
             "function.var_refs_from": self._tool_function_var_refs_from,
             "function.ssa_var_def_use": self._tool_function_ssa_var_def_use,
@@ -966,6 +967,20 @@ class SimpleMcpServer:
                     "function_start": {
                         "oneOf": [{"type": "integer"}, {"type": "string"}],
                     },
+                },
+                ["session_id", "function_start"],
+            ),
+            self._tool(
+                "function.force_analysis",
+                "Force reanalysis of a function, bypassing max-size/time limits "
+                "(equivalent to UI 'Force Analysis'). Use for functions skipped "
+                "due to analysis.limits.maxFunctionSize.",
+                {
+                    "session_id": {"type": "string"},
+                    "function_start": {
+                        "oneOf": [{"type": "integer"}, {"type": "string"}],
+                    },
+                    "wait": {"type": "boolean"},
                 },
                 ["session_id", "function_start"],
             ),
@@ -2801,6 +2816,16 @@ class SimpleMcpServer:
         if function_start is None:
             raise BinjaBackendError("'function_start' is required")
         return self._backend.function_variables(session_id, function_start)
+
+    def _tool_function_force_analysis(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        session_id = self._require_str(arguments, "session_id")
+        function_start = self._optional_int_or_str(arguments, "function_start")
+        if function_start is None:
+            raise BinjaBackendError("'function_start' is required")
+        wait = bool(arguments.get("wait", True))
+        return self._backend.function_force_analysis(
+            session_id, function_start, wait=wait
+        )
 
     def _tool_function_var_refs(self, arguments: dict[str, Any]) -> dict[str, Any]:
         session_id = self._require_str(arguments, "session_id")
