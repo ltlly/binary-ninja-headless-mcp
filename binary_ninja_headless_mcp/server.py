@@ -1720,7 +1720,7 @@ class SimpleMcpServer:
                 {
                     "session_id": {"type": "string"},
                     "type_archive_id": {"type": "string"},
-                    "names": {"type": "array", "items": {"type": "string"}},
+                    "names": {"type": "array", "items": {"type": "string"}, "minItems": 1},
                 },
                 ["session_id", "type_archive_id", "names"],
             ),
@@ -1730,7 +1730,7 @@ class SimpleMcpServer:
                 {
                     "session_id": {"type": "string"},
                     "type_archive_id": {"type": "string"},
-                    "names": {"type": "array", "items": {"type": "string"}},
+                    "names": {"type": "array", "items": {"type": "string"}, "minItems": 1},
                 },
                 ["session_id", "type_archive_id", "names"],
             ),
